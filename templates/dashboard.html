@@ -1,24 +1,60 @@
 {% extends "base.html" %}
 {% block content %}
-    <form class="submission-prediction" id="submission-form" action="/" method="post">
-      <h2 class="predictions-heading">Prediction Submission</h2>
-
-      <textarea name="predictions" id="predictions" class="form-control" form="submission-form" rows="10"
-        placeholder="Copy paste your csv file (along with the headers) here as it is..." required autofocus></textarea>
-
-      <textarea name="code" id="code" class="form-control" form="submission-form" rows="10"
-        placeholder="Copy paste your code here as it is..." required autofocus></textarea>
-
-      <button class="btn btn-lg btn-primary btn-block" type="submit">Submit</button>
-    </form>
-
+{% if scores %}
+<div class="row">
+  <div class="col-md-12">
     <div id="submission-result">
-      {% if scores %}
         <p id="submission-score">
-          Precision: {{ scores.precision | safe }} </br>
-          Recall: {{ scores.recall | safe }} </br>
-          F1: {{ scores.F1 | safe }}
+          Precision: {{ scores.precision }} </br>
+          Recall: {{ scores.recall }} </br>
+          F1: {{ scores.F1 }}
         </p>
-      {% endif %}
     </div>
+  </div>
+</div>
+{% endif %}
+
+<div class="row">
+  <div class="col-md-7">
+    <h3>New Submission</h3>
+    <hr />
+    <form class="submission-prediction" id="submission-form" action="/" method="post">
+      <h5 class="predictions-heading">Matches</h5>
+      <textarea name="predictions" id="predictions" class="form-control" form="submission-form"
+        placeholder="Copy paste your csv file (along with the headers) here as it is..." required autofocus></textarea>
+      <h5 class="code-heading">Code Snippet</h5>
+      <textarea name="code" id="code" class="form-control" form="submission-form"
+        placeholder="Copy paste your code here as it is..." required></textarea>
+      <button class="btn btn-lg btn-primary btn-block" type="submit">Submit</button>
+  </div>
+
+  <div class="col-md-5">
+    <h3>History</h3>
+    <hr />
+    <table class="table table-hover">
+    <thead> 
+      <tr>
+        <th></th> 
+        <th>Precision</th> 
+        <th>Recall</th> 
+        <th>F1</th> 
+        <th>Details</th> 
+      </tr> 
+    </thead>
+    <tbody>
+    {% for h in history %}
+      <tr>
+        <th>{{ loop.index }}</th>
+        <th>{{ "%.2f" | format(h.precision) }}</th>
+        <th>{{ "%.2f" | format(h.recall) }}</th>
+        <th>{{ "%.2f" | format(h.F1) }}</th>
+        <th><a href="/submission/{{h.id}}">View</a></th>
+      </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+
+  </div>
+</div>
+
 {% endblock %}

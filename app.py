@@ -105,12 +105,16 @@ def teardown_request(exception):
 @login_required
 def dashboard():
     scores = None
+    email = session['email']
+    history = r.table('submissions')\
+                .filter(r.row["email"].eq(email))\
+                .order_by(r.desc('timestamp')) \
+                .run(g.rdb_conn)
     if request.method == "POST":
         predictions = request.form.get("predictions")
         code = request.form.get("code")
         try:
             scores = grader.grader_text(predictions, validator)
-            email = 'bkj2111@columbia.edu'
             nyc = pytz.timezone('America/New_York')
 
             inserted = r.table('submissions').insert({
@@ -125,11 +129,12 @@ def dashboard():
 
             if inserted['generated_keys']:
                 flash("Submission Successful!", "success")
+                return redirect(url_for('dashboard'))
             else:
                 flash("Submission Unsuccessful!", "danger")
         except grader.InputFormatError as e:
             flash(e.msg, "danger")
-    return render_template("dashboard.html", scores=scores)
+    return render_template("dashboard.html", history=history)
 
 @app.route('/leaderboard')
 @login_required
@@ -185,7 +190,6 @@ def login():
             flash("Invalid email / password combination", "danger")
             return render_template("login.html")
         session['email'] = email
-        flash("You have successfully logged in!", "success")
         return redirect(url_for('dashboard'))
     return render_template("login.html")
 

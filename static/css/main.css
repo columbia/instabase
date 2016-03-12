@@ -1,3 +1,7 @@
+.container {
+    max-width: 860px;
+}
+
 .form-signin {
   max-width: 500px;
 }
@@ -30,16 +34,33 @@
 /* Custom page header */
 .header {
   padding-top: 20px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #e5e5e5;
+  margin-bottom: 20px;
 }
 /* Make the masthead heading the same height as the navigation */
 .header h3 {
   margin-top: 0;
   margin-bottom: 0;
   line-height: 40px;
+  color: #337ab7;
+  font-size: 36px;
 }
 
-h1.page-title {
-    margin: 40px 0;
+form.submission-prediction textarea {
+    height: 100px;
+}
+form.submission-prediction button {
+    max-width: 150px;
+    margin: 20px 0;
+}
+form.submission-prediction h5.code-heading {
+    margin-top: 25px;
+}
+span.tagline {
+    font-size: 13px;
+    font-style: italic;
+    color: #bbb;
+}
+
+tbody th {
+    font-weight: normal;
 }
