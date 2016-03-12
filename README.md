@@ -6,6 +6,6 @@ An Entity Resolution game made for the [CSDS](https://columbia.github.io/systems
 Make sure you have [rethinkdb](http://rethinkdb.com/) installed.
 ```
 $ python app.py --setup
-$ python app.py
+$ ./run.sh
 ```
 

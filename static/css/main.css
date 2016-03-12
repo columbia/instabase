@@ -115,3 +115,7 @@ p.chart-title {
 canvas#trend {
     margin-bottom: 30px;
 }
+
+div#tracker-msg {
+    display: none;
+}

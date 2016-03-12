@@ -60,10 +60,8 @@ def grader_text(submission, validator):
         locu_id = str(entry[0]).strip()
         foursquare_id = str(entry[1]).strip()
         total_predictions += 1
-        try:
+        if locu_id in validator:
             correct_predictions += 1 if validator[locu_id] == foursquare_id else 0
-        except KeyError:
-            pass
 
     precision = correct_predictions / total_predictions * 100
     recall = correct_predictions / len(validator) * 100

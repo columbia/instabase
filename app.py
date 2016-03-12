@@ -1,6 +1,17 @@
+# -*- coding: utf-8 -*-
+
+"""
+Submission Server
+=====
+
+A simple app that allow students to upload their ER scores and get results
+"""
 from flask import Flask, url_for, flash, redirect, render_template
 from flask import request, g, jsonify, abort, session, escape
+from flask_sockets import Sockets
+import logging
 from datetime import datetime
+import gevent
 import pytz
 import json
 import grader
@@ -14,9 +25,6 @@ import hashlib
 import rethinkdb as r
 from rethinkdb.errors import RqlRuntimeError, RqlDriverError
 
-app = Flask(__name__)
-app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
-
 ###################
 ## CONFIGURATION ##
 ###################
@@ -26,8 +34,12 @@ MAILGUN_KEY = os.environ.get("MAILGUN_KEY")
 DB = 'instabase'
 MAILGUN_URL = "https://api.mailgun.net/v3/timelogger.mailgun.org/messages"
 
-### initialize the validator
+### init
+app = Flask(__name__)
+app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 validator = grader.createValidator("data/gold.csv")
+
+sockets = Sockets(app)
 
 ###################
 ###### UTILS ######
@@ -98,6 +110,37 @@ def teardown_request(exception):
     except AttributeError:
         pass
 
+class LeaderboardTracker(object):
+    """ A backend for storing clients for websocket connections """
+
+    def __init__(self):
+        self.clients = list()
+        self.conn = r.connect(host=RDB_HOST, port=RDB_PORT, db=DB)
+
+    def register(self, client):
+        print "registering a new client"
+        self.clients.append(client)
+
+    def send(self, client, data):
+        try:
+            client.send(json.dumps(data))
+            print "data sent to client"
+        except Exception:
+            print "some issue. removing client"
+            self.clients.remove(client)
+
+    def run(self):
+        self.cursor = r.table('leaderboard').changes().run(self.conn)
+        for document in self.cursor:
+            for client in self.clients:
+                gevent.spawn(self.send, client, document)
+
+    def start(self):
+        print u'Started listening for changes on leaderboard'
+        gevent.spawn(self.run)
+
+tracker = LeaderboardTracker()
+tracker.start()
 
 ####################
 #### ROUTES ########
@@ -242,6 +285,15 @@ def login():
         session['email'] = email
         return redirect(url_for('dashboard'))
     return render_template("login.html", page="login")
+
+
+#### WEBSOCKET ROUTE
+@sockets.route('/receive')
+def outbox(ws):
+    tracker.register(ws)
+    while not ws.closed:
+        gevent.sleep(0.1)
+
 
 if __name__  == "__main__":
     parser = argparse.ArgumentParser(description='Run the instabase app')
