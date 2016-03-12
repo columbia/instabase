@@ -1,4 +1,6 @@
 from flask import Flask, url_for, flash, redirect, render_template, request, g, jsonify, abort
+from datetime import datetime
+import pytz
 import grader
 import argparse
 import requests
@@ -94,11 +96,29 @@ def teardown_request(exception):
 def dashboard():
     scores = None
     if request.method == "POST":
-        submission = request.form.get("predictions")
+        predictions = request.form.get("predictions")
+        code = request.form.get("code")
         try:
-            scores = grader.grader_text(submission, validator)
+            scores = grader.grader_text(predictions, validator)
+            email = 'bkj2111@columbia.edu'
+            nyc = pytz.timezone('America/New_York')
+
+            inserted = r.table('submissions').insert({
+                'timestamp': nyc.localize(datetime.now(), is_dst=False),
+                'email': email,
+                'predictions': predictions,
+                'code': code,
+                'precision': scores['precision'],
+                'recall': scores['recall'],
+                'F1': scores['F1']
+            }).run(g.rdb_conn)
+
+            if inserted['generated_keys']:
+                flash("Submission Successful!", "success")
+            else:
+                flash("Submission Unsuccessful!", "danger")
         except grader.InputFormatError as e:
-            print e.msg
+            flash(e.msg, "danger")
     return render_template("dashboard.html", scores=scores)
 
 @app.route('/leaderboard')
