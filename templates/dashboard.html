@@ -1,19 +1,5 @@
 {% extends "base.html" %}
 {% block content %}
-{% if scores %}
-<div class="row">
-  <div class="col-md-12">
-    <div id="submission-result">
-        <p id="submission-score">
-          Precision: {{ scores.precision }} </br>
-          Recall: {{ scores.recall }} </br>
-          F1: {{ scores.F1 }}
-        </p>
-    </div>
-  </div>
-</div>
-{% endif %}
-
 <div class="row">
   <div class="col-md-7">
     <h3>New Submission</h3>
@@ -31,13 +17,13 @@
   <div class="col-md-5">
     <h3>History</h3>
     <hr />
+    {% if history %}
     <table class="table table-hover">
     <thead> 
       <tr>
         <th></th> 
-        <th>Precision</th> 
-        <th>Recall</th> 
-        <th>F1</th> 
+        <th>Submitted on</th> 
+        <th>F1 Measure</th> 
         <th>Details</th> 
       </tr> 
     </thead>
@@ -45,14 +31,16 @@
     {% for h in history %}
       <tr>
         <th>{{ loop.index }}</th>
-        <th>{{ "%.2f" | format(h.precision) }}</th>
-        <th>{{ "%.2f" | format(h.recall) }}</th>
+        <th>{{ h.timestamp.strftime('%b %d, %H:%M') }}</th>
         <th>{{ "%.2f" | format(h.F1) }}</th>
         <th><a href="/submission/{{h.id}}">View</a></th>
       </tr>
     {% endfor %}
     </tbody>
     </table>
+    {% else %}
+    <p>No submissions yet</p>
+    {% endif %}
 
   </div>
 </div>

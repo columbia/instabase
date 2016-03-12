@@ -116,8 +116,7 @@ def dashboard():
         try:
             scores = grader.grader_text(predictions, validator)
             nyc = pytz.timezone('America/New_York')
-
-            inserted = r.table('submissions').insert({
+            submission = {
                 'timestamp': nyc.localize(datetime.now(), is_dst=False),
                 'email': email,
                 'predictions': predictions,
@@ -125,7 +124,40 @@ def dashboard():
                 'precision': scores['precision'],
                 'recall': scores['recall'],
                 'F1': scores['F1']
-            }).run(g.rdb_conn)
+            }
+            inserted = r.table('submissions').insert(submission).run(g.rdb_conn)
+
+
+            ## leaderboard
+            best = r.table('leaderboard')\
+                    .filter(r.row['email'].eq(email))\
+                    .run(g.rdb_conn)
+
+            name = r.table('users')\
+                    .filter(r.row['email'].eq(email))\
+                    .get_field('name').run(g.rdb_conn)
+
+            if not best.items:
+                ins = r.table('leaderboard').insert({
+                    "name": name.items[0],
+                    "email": email,
+                    "F1": scores["F1"],
+                    'timestamp': nyc.localize(datetime.now(), is_dst=False)
+                }).run(g.rdb_conn)
+            else:
+                best = best.items[0]
+                if scores["F1"] > best["F1"]:
+                    rem = r.table('leaderboard')\
+                           .filter(r.row['email'].eq(email))\
+                           .delete()\
+                           .run(g.rdb_conn)
+
+                    ins = r.table('leaderboard').insert({
+                        "name": name.items[0],
+                        "email": email,
+                        "F1": scores["F1"],
+                        'timestamp': nyc.localize(datetime.now(), is_dst=False)
+                    }).run(g.rdb_conn)
 
             if inserted['generated_keys']:
                 flash("Submission Successful!", "success")
@@ -139,7 +171,8 @@ def dashboard():
 @app.route('/leaderboard')
 @login_required
 def leaderboard():
-    return "this is the leaderboard"
+    leaders = []
+    return render_template("leaderboard.html", leaders=leaders)
 
 @app.route('/submission/<string:sub_id>')
 @login_required
