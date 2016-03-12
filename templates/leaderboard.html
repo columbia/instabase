@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js" type="text/javascript"></script>
 <div class="row">
   <div class="col-md-6">
     <h3>Leaderboard <span class="badge">{{rank}}/{{leaders|count}}</span></h3>
@@ -28,7 +29,56 @@
   <div class="col-md-6">
     <h3>Stats</h3>
     <hr />
+    <p class="chart-title">F1 Measure vs Ranks</p>
+    <canvas id="trend" width="400" height="200"></canvas>
+    <p class="chart-title">F1 Measure Distribution</p>
+    <canvas id="histo" width="400" height="200"></canvas>
   </div>
 </div>
 
+<script type="text/javascript">
+var scores = {{ scores }};
+var ctx = document.getElementById("trend").getContext("2d");
+var ranks = [];
+var histogram = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+for (var i = 1; i <= scores.length; i++) {
+  ranks.push(i);
+  var index = parseInt(scores[i] / 10);
+  histogram[index] += 1;
+}
+var data = {
+    labels: ranks,
+    datasets: [
+        {
+            label: "My first dataset",
+            fillColor: "rgba(220,220,220,0.2)",
+            strokeColor: "rgba(220,220,220,1)",
+            pointColor: "rgba(220,220,220,1)",
+            pointStrokeColor: "#fff",
+            pointHighlightFill: "#fff",
+            pointHighlightStroke: "rgba(220,220,220,1)",
+            data: scores
+        }
+    ]
+};
+var myNewChart = new Chart(ctx).Line(data);
+
+var histodata = {
+    labels: ["0-10", "10-20", "20-30", "30-40", "40-50", "50-60", "60-70", "70-80", "80-90", "90-100"],
+    datasets: [
+        {
+            label: "My first dataset",
+            fillColor: "rgba(220,220,220,0.2)",
+            strokeColor: "rgba(220,220,220,1)",
+            pointColor: "rgba(220,220,220,1)",
+            pointStrokeColor: "#fff",
+            pointHighlightFill: "#fff",
+            pointHighlightStroke: "rgba(220,220,220,1)",
+            data: histogram
+        }
+    ]
+}
+var ctx2 = document.getElementById("histo").getContext("2d");
+var myhistochart = new Chart(ctx2).Bar(histodata);
+</script>
 {% endblock %}

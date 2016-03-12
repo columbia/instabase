@@ -107,3 +107,11 @@ span.badge {
     background: #337ab7;
     font-size: 13px;
 }
+
+p.chart-title {
+    text-align: center;
+    font-style: italic;
+}
+canvas#trend {
+    margin-bottom: 30px;
+}

@@ -2,6 +2,7 @@ from flask import Flask, url_for, flash, redirect, render_template
 from flask import request, g, jsonify, abort, session, escape
 from datetime import datetime
 import pytz
+import json
 import grader
 from functools import wraps
 import argparse
@@ -174,11 +175,13 @@ def leaderboard():
     leaders = r.table('leaderboard').order_by(r.desc('F1')).run(g.rdb_conn)
     rank = 0
     email = session["email"]
+    scores = [s["F1"] for s in leaders]
     for index, l in enumerate(leaders):
         if l["email"] == email:
             rank = index + 1
             break
-    return render_template("leaderboard.html", leaders=leaders, email=email, rank=rank)
+    return render_template("leaderboard.html", leaders=leaders, email=email,
+                           rank=rank, scores=scores)
 
 @app.route('/submission/<string:sub_id>')
 @login_required
