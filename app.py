@@ -141,6 +141,14 @@ def dashboard():
 def leaderboard():
     return "this is the leaderboard"
 
+@app.route('/submission/<string:sub_id>')
+@login_required
+def submission(sub_id):
+    sub = r.table('submissions').get(sub_id).run(g.rdb_conn)
+    if not sub:
+        abort(404)
+    return render_template("submission.html", sub=sub)
+
 @app.route('/signup', methods=["POST"])
 def signup():
     email = request.form.get('email')

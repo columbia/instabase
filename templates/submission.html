@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row">
+  <div class="col-md-12">
+  <h3>Submission Details</h3>
+  <hr />
+  </div>
+</div>
+<div class="row top-board">
+  <div class="col-md-3 res-cell">
+    <h4>{{"%.2f"|format(sub.precision)}}%</h4>
+    <p>Precision</p>
+  </div>
+  <div class="col-md-3 res-cell">
+    <h4>{{"%.2f"|format(sub.recall)}}%</h4>
+    <p>Recall</p>
+  </div>
+  <div class="col-md-3 res-cell">
+    <h4>{{"%.2f"| format(sub.F1)}}%</h4>
+    <p>F1 Measure</p>
+  </div>
+  <div class="col-md-3 res-cell">
+    <h4>{{sub.timestamp.strftime('%b %d, %H:%M')}}</h4>
+    <p>Submitted on</p>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-5">
+    <h4 class="predictions-heading">Matches</h4>
+    <pre>{{sub.predictions}}</pre>
+  </div>
+  <div class="col-md-7">
+    <h4 class="predictions-heading">Code</h4>
+    <pre><code class="language-python">{{sub.code}}</code></pre>
+  </div>
+</div>
+<script src="/static/js/prism.min.js"></script>
+{% endblock %}

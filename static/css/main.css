@@ -64,3 +64,19 @@ span.tagline {
 tbody th {
     font-weight: normal;
 }
+
+.row.top-board {
+    padding: 0 15px;
+    margin-bottom: 20px;
+}
+
+.res-cell { 
+    border: 3px solid white;
+    background: #eee;
+    border-radius: 8px;
+}
+.res-cell h4 { font-size: 24px; }
+.res-cell p { 
+    font-size: 13px; 
+    color: #aaa;
+}
