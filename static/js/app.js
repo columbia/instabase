@@ -1,7 +1,6 @@
 var WS_SCHEME = "ws://";
 var WS_URL = WS_SCHEME + location.host + "/receive";
 
-
 // plot charts
 function plotCharts(scores) {
     var ctx = document.getElementById("trend").getContext("2d");
@@ -49,10 +48,6 @@ function plotCharts(scores) {
     var myhistochart = new Chart(ctx2).Bar(histodata);
 }
 
-plotCharts(data);
-
-
-
 function startTracking() {
     // initialize a websocket connection 
     this.inbox = new ReconnectingWebSocket(WS_URL);
@@ -69,4 +64,6 @@ function startTracking() {
     }
 }
 
+// getting it running
+plotCharts(data);
 startTracking();
