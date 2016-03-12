@@ -43,7 +43,7 @@ var ranks = [];
 var histogram = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 for (var i = 1; i <= scores.length; i++) {
   ranks.push(i);
-  var index = parseInt(scores[i] / 10);
+  var index = parseInt(scores[i-1] / 10);
   histogram[index] += 1;
 }
 var data = {
