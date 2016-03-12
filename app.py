@@ -1,4 +1,4 @@
-from flask import Flask, url_for, redirect, render_template, request
+from flask import Flask, url_for, redirect, render_template, request, g, jsonify, abort
 import grader
 import argparse
 import os
@@ -90,11 +90,26 @@ def leaderboard():
 @app.route('/signup', methods=["POST"])
 def signup():
     email = request.form.get('email')
+    name = request.form.get("name")
+    password = None
     if not is_columbia_email(email):
         print "not a valid columbia email"
     else:
-        password = generate_password(email)
-        print email, password
+        email = email.strip()
+        curr = r.table('users').filter(r.row["email"].eq(email)).run(g.rdb_conn)
+        if curr.items:
+            user = curr.items[0]
+            password = user["password"]
+        else:
+            password = generate_password(email)
+            inserted = r.table('users').insert({
+                'email': email,
+                'name': name,
+                'password': password
+            }).run(g.rdb_conn)
+            if inserted["generated_keys"]:
+                password = password
+        print "sending email to", email, "with password:",  password
     return redirect(url_for('login'))
 
 @app.route('/login', methods=["GET", "POST"])
