@@ -1,16 +1,11 @@
 ### Instabase
 
-An Entity Resolution game
-
-#### Todos
-- [ ] Allow students to upload predictions of their test runs
-- [ ] Authentication with UNIs and passwords
-- [x] Compute F1 score, precision and recall
-- [ ] Persist scores and code submission
-- [ ] Generate a (real-time?) leader board
+An Entity Resolution game made for the [CSDS](https://columbia.github.io/systems-bigdata-class/) class at Columbia.
 
 ### Running
+Make sure you have [rethinkdb](http://rethinkdb.com/) installed.
 ```
 $ python app.py --setup
 $ python app.py
 ```
+
