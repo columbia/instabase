@@ -1,14 +1,24 @@
 {% extends "base.html" %}
 {% block content %}
+<div class="row">
+  <div class="col-md-12">
+    <h1 class="page-title">Login</h1>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-6">
     <form class="form-signin" action="/login" method="post">
       <h4 class="form-signin-heading">Please sign in</h4>
-      <label for="inputEmail" class="sr-only">Columbia email address</label>
+      <p>Login with your columbia email and the instabase password</p>
+      <label for="inputEmail">Columbia email address</label>
       <input type="email" name="email" id="inputEmail" class="form-control" placeholder="foo.bar@columbia.edu" required autofocus>
-      <label for="inputPassword" class="sr-only">Password</label>
+      <label for="inputPassword">Password</label>
       <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required>
       <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
     </form>
-    <hr />
+  </div>
+  <div class="col-md-6">
     <form class="form-signin" action="/signup" method="post">
       <h4 class="form-signin-heading">New here? Sign up!</h4>
       <p>Enter your columbia email and we'll email you login details</p>
@@ -18,4 +28,6 @@
       <input type="text" name="name" id="inputname" class="form-control" placeholder="darkl0rD" required>
       <button class="btn btn-lg btn-primary btn-block" type="submit">Sign up</button>
     </form>
+  </div>
+</div>
 {% endblock %}

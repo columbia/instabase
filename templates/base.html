@@ -20,7 +20,19 @@
     <![endif]-->
   </head>
   <body>
+
     <div class="container">
+      <div class="header clearfix">
+        <nav>
+          <ul class="nav nav-pills pull-right">
+            <li role="presentation"><a href="/">Dashboard</a></li>
+            <li role="presentation"><a href="/login">Login</a></li>
+            <li role="presentation"><a href="/leaderboard">Leaderboard</a></li>
+          </ul>
+        </nav>
+        <h3 class="text-muted">Instabase</h3>
+      </div>
+
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
           {% for category, message in messages %}
