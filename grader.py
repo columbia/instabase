@@ -66,4 +66,8 @@ def grader_text(submission, validator):
     recall = correct_predictions / len(validator) * 100
     F1 = 2.0 * (precision * recall) / (precision + recall)
 
-    return (precision, recall, F1)
+    return dict({
+        'precision': precision,
+        'recall': recall,
+        'F1': F1
+    })
