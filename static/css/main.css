@@ -1,5 +1,21 @@
+html {
+  position: relative;
+  min-height: 100%;
+}
 .container {
     max-width: 860px;
+}
+
+body {
+     margin-bottom: 60px;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  font-size: 11px;
+  height: 30px;
+  border-top: #f5f5f5;
 }
 
 .form-signin {
@@ -79,4 +95,15 @@ tbody th {
 .res-cell p { 
     font-size: 13px; 
     color: #aaa;
+}
+tr.highlight-me {
+    background: #d9edf7;
+}
+tr.highlight-me th {
+    font-weight: 800;
+}
+
+span.badge {
+    background: #337ab7;
+    font-size: 13px;
 }

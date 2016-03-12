@@ -171,8 +171,14 @@ def dashboard():
 @app.route('/leaderboard')
 @login_required
 def leaderboard():
-    leaders = []
-    return render_template("leaderboard.html", leaders=leaders)
+    leaders = r.table('leaderboard').order_by(r.desc('F1')).run(g.rdb_conn)
+    rank = 0
+    email = session["email"]
+    for index, l in enumerate(leaders):
+        if l["email"] == email:
+            rank = index + 1
+            break
+    return render_template("leaderboard.html", leaders=leaders, email=email, rank=rank)
 
 @app.route('/submission/<string:sub_id>')
 @login_required
