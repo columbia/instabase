@@ -1,23 +1,16 @@
 ### Instabase
 
-Web app for csds course
+An Entity Resolution game
 
-#### Objective
-- Allow students to upload predictions of their test runs (on the test data set)
-- Authentication with UNIs and passwords
-- Compute F1 score, precision and recall
-- Persist scores and code submission
-- Generate a (real-time?) leaderboard
+#### Todos
+- [ ] Allow students to upload predictions of their test runs
+- [ ] Authentication with UNIs and passwords
+- [x] Compute F1 score, precision and recall
+- [ ] Persist scores and code submission
+- [ ] Generate a (real-time?) leader board
 
-#### Pages
-- Leaderboard
-- Login
-- Home (Dashboard)
-  - Her previous submissions
-  - Upload
-    - Matches file upload (take only .csv files)
-    - Python code paste
-
-#### Misc Features
-- Email password to columbia ID
-- Email successful submissions
+### Running
+```
+$ python app.py --setup
+$ python app.py
+```
