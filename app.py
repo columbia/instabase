@@ -1,6 +1,7 @@
 from flask import Flask, url_for, redirect, render_template, request, g, jsonify, abort
 import grader
 import argparse
+import requests
 import os
 import string
 from random import sample, choice
@@ -15,8 +16,10 @@ app = Flask(__name__)
 ###################
 RDB_HOST = os.environ.get('RDB_HOST') or 'localhost'
 RDB_PORT = os.environ.get('RDB_PORT') or 28015
+MAILGUN_KEY = os.environ.get("MAILGUN_KEY")
 DB = 'instabase'
-
+MAILGUN_URL = "https://api.mailgun.net/v3/timelogger.mailgun.org/messages"
+FROM = "do-not-reply@instabase-csds.com"
 
 ### initialize the validator
 validator = grader.createValidator("data/gold.csv")
@@ -34,6 +37,13 @@ def is_columbia_email(email):
     email = email.strip()
     return email and email.split('@')[-1] == "columbia.edu"
 
+def send_email(email, password):
+    print MAILGUN_URL, MAILGUN_KEY
+    return requests.post(MAILGUN_URL,
+        auth=("api", MAILGUN_KEY),
+        data={"from": FROM, "to": [email],
+              "subject": "Password for Instabase",
+              "text": "Hello, your password for instabase is: " + password })
 
 ####################
 ####### DB #########
@@ -116,7 +126,7 @@ def signup():
             }).run(g.rdb_conn)
             if inserted["generated_keys"]:
                 password = password
-        print "sending email to", email, "with password:",  password
+        print send_email(email, password)
     return redirect(url_for('login'))
 
 @app.route('/login', methods=["GET", "POST"])
