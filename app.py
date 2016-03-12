@@ -1,4 +1,4 @@
-from flask import Flask, url_for, redirect, render_template, request, g, jsonify, abort
+from flask import Flask, url_for, flash, redirect, render_template, request, g, jsonify, abort
 import grader
 import argparse
 import requests
@@ -10,6 +10,7 @@ import rethinkdb as r
 from rethinkdb.errors import RqlRuntimeError, RqlDriverError
 
 app = Flask(__name__)
+app.config["SECRET_KEY"] = "somesupersecretkey"
 
 ###################
 ## CONFIGURATION ##
@@ -110,7 +111,7 @@ def signup():
     name = request.form.get("name")
     password = None
     if not is_columbia_email(email):
-        print "not a valid columbia email"
+        flash("Not a valid columbia ID!", "danger")
     else:
         email = email.strip()
         curr = r.table('users').filter(r.row["email"].eq(email)).run(g.rdb_conn)
@@ -126,7 +127,11 @@ def signup():
             }).run(g.rdb_conn)
             if inserted["generated_keys"]:
                 password = password
-        print send_email(email, password)
+        resp = send_email(email, password)
+        if resp.status_code == 200:
+            flash("Email sent! Check your inbox for your login details", "success")
+        else:
+            flash("Error sending email. Please try again or contact admin", "danger")
     return redirect(url_for('login'))
 
 @app.route('/login', methods=["GET", "POST"])
