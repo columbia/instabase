@@ -39,6 +39,8 @@ app = Flask(__name__)
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 validator = grader.createValidator("data/gold.csv")
 
+sockets = Sockets(app)
+
 ###################
 ###### UTILS ######
 ###################
@@ -116,15 +118,22 @@ class LeaderboardTracker(object):
         self.conn = r.connect(host=RDB_HOST, port=RDB_PORT, db=DB)
 
     def register(self, client):
+        print "registering a new client"
         self.clients.append(client)
 
-    def send(self, data):
-        print data
+    def send(self, client, data):
+        try:
+            client.send(json.dumps(data))
+            print "data sent to client"
+        except Exception:
+            print "some issue. removing client"
+            self.clients.remove(client)
 
     def run(self):
         self.cursor = r.table('leaderboard').changes().run(self.conn)
         for document in self.cursor:
-            gevent.spawn(self.send, document)
+            for client in self.clients:
+                gevent.spawn(self.send, client, document)
 
     def start(self):
         print u'Started listening for changes on leaderboard'
@@ -276,6 +285,15 @@ def login():
         session['email'] = email
         return redirect(url_for('dashboard'))
     return render_template("login.html", page="login")
+
+
+#### WEBSOCKET ROUTE
+@sockets.route('/receive')
+def outbox(ws):
+    tracker.register(ws)
+    while not ws.closed:
+        gevent.sleep(0.1)
+
 
 if __name__  == "__main__":
     parser = argparse.ArgumentParser(description='Run the instabase app')
