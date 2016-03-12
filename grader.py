@@ -57,14 +57,17 @@ def grader_text(submission, validator):
 
     for row in rows[1:]:
         entry = row.split(',')
-        locu_id = entry[0].strip()
-        foursquare_id = entry[1].strip()
+        locu_id = str(entry[0]).strip()
+        foursquare_id = str(entry[1]).strip()
         total_predictions += 1
-        correct_predictions += 1 if validator[locu_id] == foursquare_id else 0
+        try:
+            correct_predictions += 1 if validator[locu_id] == foursquare_id else 0
+        except KeyError:
+            pass
 
     precision = correct_predictions / total_predictions * 100
     recall = correct_predictions / len(validator) * 100
-    F1 = 2.0 * (precision * recall) / (precision + recall)
+    F1 = 0 if precision == 0 and recall == 0 else 2.0 * (precision * recall) / (precision + recall)
 
     return dict({
         'precision': precision,
