@@ -1,7 +1,9 @@
-from flask import Flask, url_for, flash, redirect, render_template, request, g, jsonify, abort
+from flask import Flask, url_for, flash, redirect, render_template
+from flask import request, g, jsonify, abort, session, escape
 from datetime import datetime
 import pytz
 import grader
+from functools import wraps
 import argparse
 import requests
 import os
@@ -12,7 +14,7 @@ import rethinkdb as r
 from rethinkdb.errors import RqlRuntimeError, RqlDriverError
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "somesupersecretkey"
+app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
 ###################
 ## CONFIGURATION ##
@@ -45,6 +47,15 @@ def send_email(email, password):
         data={"from": "do-not-reply@instabase-csds.com", "to": [email],
               "subject": "Password for Instabase",
               "text": "Hello, your password for instabase is: " + password })
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'email' not in session:
+            flash("You need to login to view this page", "danger")
+            return redirect(url_for('login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
 
 ####################
 ####### DB #########
@@ -91,6 +102,7 @@ def teardown_request(exception):
 #### ROUTES ########
 ####################
 @app.route('/', methods=['GET', 'POST'])
+@login_required
 def dashboard():
     scores = None
     if request.method == "POST":
@@ -120,6 +132,7 @@ def dashboard():
     return render_template("dashboard.html", scores=scores)
 
 @app.route('/leaderboard')
+@login_required
 def leaderboard():
     return "this is the leaderboard"
 
@@ -152,6 +165,13 @@ def signup():
             flash("Error sending email. Please try again or contact admin", "danger")
     return redirect(url_for('login'))
 
+@app.route('/logout')
+@login_required
+def logout():
+    session.pop('email', None)
+    flash("You have successfully logged out!", "success")
+    return redirect(url_for('login'))
+
 @app.route('/login', methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -164,6 +184,7 @@ def login():
         if not curr.items:
             flash("Invalid email / password combination", "danger")
             return render_template("login.html")
+        session['email'] = email
         flash("You have successfully logged in!", "success")
         return redirect(url_for('dashboard'))
     return render_template("login.html")
