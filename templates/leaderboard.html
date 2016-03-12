@@ -6,12 +6,12 @@
     <h3>Leaderboard <span class="badge">{{rank}}/{{leaders|count}}</span></h3>
     <hr />
     <table class="table table-hover">
-    <thead> 
+    <thead>
       <tr>
-        <th>Rank</th> 
-        <th>Name</th> 
-        <th>F1 Measure</th> 
-      </tr> 
+        <th>Rank</th>
+        <th>Name</th>
+        <th>F1 Measure</th>
+      </tr>
     </thead>
     <tbody>
     {% for leader in leaders %}
@@ -45,6 +45,7 @@ for (var i = 1; i <= scores.length; i++) {
   ranks.push(i);
   var index = parseInt(scores[i-1] / 10);
   histogram[index] += 1;
+  scores[i-1] = +scores[i-1].toFixed(2)
 }
 var data = {
     labels: ranks,
