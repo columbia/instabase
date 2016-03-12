@@ -20,7 +20,6 @@ RDB_PORT = os.environ.get('RDB_PORT') or 28015
 MAILGUN_KEY = os.environ.get("MAILGUN_KEY")
 DB = 'instabase'
 MAILGUN_URL = "https://api.mailgun.net/v3/timelogger.mailgun.org/messages"
-FROM = "do-not-reply@instabase-csds.com"
 
 ### initialize the validator
 validator = grader.createValidator("data/gold.csv")
@@ -39,10 +38,9 @@ def is_columbia_email(email):
     return email and email.split('@')[-1] == "columbia.edu"
 
 def send_email(email, password):
-    print MAILGUN_URL, MAILGUN_KEY
     return requests.post(MAILGUN_URL,
         auth=("api", MAILGUN_KEY),
-        data={"from": FROM, "to": [email],
+        data={"from": "do-not-reply@instabase-csds.com", "to": [email],
               "subject": "Password for Instabase",
               "text": "Hello, your password for instabase is: " + password })
 
@@ -139,8 +137,15 @@ def login():
     if request.method == "POST":
         email = request.form.get("email")
         password = request.form.get("password")
-        if email == "test@columbia.edu" and password == "123":
-            return redirect(url_for('dashboard'))
+        curr = r.table('users') \
+                .filter(r.row["email"].eq(email)) \
+                .filter(r.row["password"].eq(password)) \
+                .run(g.rdb_conn)
+        if not curr.items:
+            flash("Invalid email / password combination", "danger")
+            return render_template("login.html")
+        flash("You have successfully logged in!", "success")
+        return redirect(url_for('dashboard'))
     return render_template("login.html")
 
 if __name__  == "__main__":
