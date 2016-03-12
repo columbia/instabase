@@ -79,9 +79,16 @@ def teardown_request(exception):
 ####################
 #### ROUTES ########
 ####################
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def dashboard():
-    return "this is the dashboard"
+    scores = None
+    if request.method == "POST":
+        submission = request.form.get("predictions")
+        try:
+            scores = grader.grader_text(submission, validator)
+        except grader.InputFormatError as e:
+            print e.msg
+    return render_template("dashboard.html", scores=scores)
 
 @app.route('/leaderboard')
 def leaderboard():
