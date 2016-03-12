@@ -167,7 +167,7 @@ def dashboard():
                 flash("Submission Unsuccessful!", "danger")
         except grader.InputFormatError as e:
             flash(e.msg, "danger")
-    return render_template("dashboard.html", history=history)
+    return render_template("dashboard.html", history=history, page="dashboard")
 
 @app.route('/leaderboard')
 @login_required
@@ -181,7 +181,7 @@ def leaderboard():
             rank = index + 1
             break
     return render_template("leaderboard.html", leaders=leaders, email=email,
-                           rank=rank, scores=scores)
+                           rank=rank, scores=scores, page="leaderboard")
 
 @app.route('/submission/<string:sub_id>')
 @login_required
@@ -189,7 +189,7 @@ def submission(sub_id):
     sub = r.table('submissions').get(sub_id).run(g.rdb_conn)
     if not sub:
         abort(404)
-    return render_template("submission.html", sub=sub)
+    return render_template("submission.html", sub=sub, page="submission")
 
 @app.route('/signup', methods=["POST"])
 def signup():
@@ -241,7 +241,7 @@ def login():
             return render_template("login.html")
         session['email'] = email
         return redirect(url_for('dashboard'))
-    return render_template("login.html")
+    return render_template("login.html", page="login")
 
 if __name__  == "__main__":
     parser = argparse.ArgumentParser(description='Run the instabase app')
