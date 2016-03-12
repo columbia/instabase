@@ -6,9 +6,15 @@ app = Flask(__name__)
 ### initialize the validator
 validator = grader.createValidator("data/gold.csv")
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def dashboard():
-    return "this is the dashboard"
+    if request.method == "POST":
+        submission = request.form.get("predictions")
+        try:
+            print grader.grader_text(submission, validator)
+        except grader.InputFormatError as e:
+            print e.msg
+    return render_template("dashboard.html")
 
 @app.route('/leaderboard')
 def leaderboard():
