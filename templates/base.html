@@ -37,7 +37,13 @@
           <ul class="nav nav-pills pull-right">
             <li role="presentation" class={% if page == "dashboard" %}{{"active"}} {% endif %}><a href="/">Dashboard</a></li>
             <li role="presentation" class={% if page == "leaderboard" %}{{"active"}} {% endif %}><a href="/leaderboard">Leaderboard</a></li>
-            <li role="presentation"><a href="/logout">Logout</a></li>
+            <li role="presentation">
+              {% if logged_in %}
+              <a href="/logout">Logout</a>
+              {% else %}
+              <a href="/login">Login</a>
+              {% endif %}
+            </li>
           </ul>
         </nav>
         <h3 class="text-muted"><a href="/">instabase</a></h3>

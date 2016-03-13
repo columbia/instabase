@@ -210,21 +210,20 @@ def dashboard():
                 flash("Submission Unsuccessful!", "danger")
         except grader.InputFormatError as e:
             flash(e.msg, "danger")
-    return render_template("dashboard.html", history=history, page="dashboard")
+    return render_template("dashboard.html", history=history, page="dashboard", logged_in=True)
 
 @app.route('/leaderboard')
 @login_required
 def leaderboard():
     leaders = r.table('leaderboard').order_by(r.desc('F1')).run(g.rdb_conn)
-    rank = 0
     email = session["email"]
     scores = [s["F1"] for s in leaders]
-    for index, l in enumerate(leaders):
-        if l["email"] == email:
-            rank = index + 1
-            break
+    try:
+        rank = [l["email"] for l in leaders].index(email) + 1
+    except ValueError:
+        rank = 0
     return render_template("leaderboard.html", leaders=leaders, email=email,
-                           rank=rank, scores=scores, page="leaderboard")
+                           rank=rank, scores=scores, page="leaderboard", logged_in=True)
 
 @app.route('/submission/<string:sub_id>')
 @login_required
@@ -232,7 +231,7 @@ def submission(sub_id):
     sub = r.table('submissions').get(sub_id).run(g.rdb_conn)
     if not sub:
         abort(404)
-    return render_template("submission.html", sub=sub, page="submission")
+    return render_template("submission.html", sub=sub, page="submission",logged_in=True)
 
 @app.route('/signup', methods=["POST"])
 def signup():
@@ -284,7 +283,7 @@ def login():
             return render_template("login.html")
         session['email'] = email
         return redirect(url_for('dashboard'))
-    return render_template("login.html", page="login")
+    return render_template("login.html", page="login", logged_in=False)
 
 
 #### WEBSOCKET ROUTE
