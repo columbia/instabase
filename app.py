@@ -185,24 +185,15 @@ def dashboard():
                 ins = r.table('leaderboard').insert({
                     "name": name.items[0],
                     "email": email,
-                    "F1": scores["F1"],
-                    'timestamp': nyc.localize(datetime.now(), is_dst=False)
+                    "F1": scores["F1"]
                 }).run(g.rdb_conn)
             else:
                 best = best.items[0]
                 if scores["F1"] > best["F1"]:
-                    rem = r.table('leaderboard')\
-                           .filter(r.row['email'].eq(email))\
-                           .delete()\
-                           .run(g.rdb_conn)
-
-                    ins = r.table('leaderboard').insert({
-                        "name": name.items[0],
-                        "email": email,
-                        "F1": scores["F1"],
-                        'timestamp': nyc.localize(datetime.now(), is_dst=False)
-                    }).run(g.rdb_conn)
-
+                    # update the best score
+                    up = r.table('leaderboard')\
+                          .filter(r.row["email"].eq(email))\
+                          .update({"F1": scores["F1"]}).run(g.rdb_conn)
             if inserted['generated_keys']:
                 flash("Submission Successful!", "success")
                 return redirect(url_for('dashboard'))
