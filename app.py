@@ -118,16 +118,20 @@ class LeaderboardTracker(object):
         self.conn = r.connect(host=RDB_HOST, port=RDB_PORT, db=DB)
 
     def register(self, client):
-        print "registering a new client"
         self.clients.append(client)
+        print "registering a new client. total clients:", len(self.clients)
+        msg = { "msg": "connected", "type": "INFO" }
+        client.send(json.dumps(msg))
 
     def send(self, client, data):
         try:
-            client.send(json.dumps(data))
+            msg = { "msg": "leaderboard updated", "type": "UPDATE" }
+            client.send(json.dumps(msg))
             print "data sent to client"
         except Exception:
             print "some issue. removing client"
             self.clients.remove(client)
+            print "removed a client. total clients:", len(self.clients)
 
     def run(self):
         self.cursor = r.table('leaderboard').changes().run(self.conn)

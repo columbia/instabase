@@ -60,9 +60,13 @@ function startTracking() {
     }
 
     this.inbox.onmessage = function(message) {
-        var data = JSON.parse(message.data);
-        console.log("got a message");
-        $('#tracker-msg').slideDown(300)
+        var msg = JSON.parse(message.data);
+        if (msg.type === "INFO") {
+            console.info("connected");
+        }
+        if (msg.type === "UPDATE") {
+            $('#tracker-msg').slideDown(300);
+        }
     }
 }
 
