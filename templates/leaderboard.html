@@ -1,18 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js" type="text/javascript"></script>
-<script type="text/javascript"> var data = {{ scores }}; </script>
 <div class="row">
   <div class="col-md-12" id="tracker-msg">
     <div class="alert alert-info">
       <p>The leaderboard has changed since you last loaded this page. Please <a href="/leaderboard">reload</a> to see the new changes</p>
     </div>
   </div>
-  <div class="col-md-6">
+
+  {% raw %}
+  <div class="col-md-6" id="app">
     <h3>Leaderboard 
-      {% if rank %}
-        <span class="badge">{{rank}}/{{leaders|count}}</span>
-      {% endif %}
+      <span v-if="rank > 0" class="badge">{{ rank }} / {{leaders.length}} </span>
     </h3>
     <hr />
     <table class="table table-hover">
@@ -24,15 +23,15 @@
       </tr>
     </thead>
     <tbody>
-    {% for leader in leaders %}
-      <tr class="{% if leader.email == email %}{{"highlight-me"}}{% endif %}">
-        <th>{{ loop.index }}</th>
-        <th> {{ leader.name }}</th>
-        <th>{{ "%.6f" | format(leader.F1) }}</th>
+      <tr class="static" v-bind:class="{ 'highlight-me': leader.email === email }"
+          v-for="(index, leader) in leaders">
+        <th> {{ index + 1 }} </th>
+        <th> {{ leader.name }} </th>
+        <th> {{ leader.F1.toFixed(4) }} </th>
       </tr>
-    {% endfor %}
     </tbody>
     </table>
+  {% endraw %}
   </div>
 
   <div class="col-md-6">
@@ -44,6 +43,8 @@
     <canvas id="histo" width="400" height="200"></canvas>
   </div>
 </div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.17/vue.js" type="text/javascript"></script>
 <script src="/static/js/reconnecting-websocket.min.js" type="text/javascript"></script>
 <script src="/static/js/app.js" type="text/javascript"></script>
 {% endblock %}

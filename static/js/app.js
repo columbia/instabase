@@ -50,6 +50,23 @@ function plotCharts(scores) {
     var myhistochart = new Chart(ctx2).Bar(histodata);
 }
 
+function render() {
+    $.get('/leaderboard.json', function(data) {
+        // plot the charts
+        plotCharts(data.scores);
+
+        // render the table
+        new Vue({
+            el: '#app',
+            data: {
+                rank: data.rank,
+                email: data.email,
+                leaders: data.leaders
+            }
+        })
+    });
+}
+
 function startTracking() {
     // initialize a websocket connection 
     this.inbox = new ReconnectingWebSocket(WS_URL);
@@ -71,5 +88,6 @@ function startTracking() {
 }
 
 // getting it running
-plotCharts(data);
 startTracking();
+
+render();

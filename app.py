@@ -207,9 +207,10 @@ def dashboard():
             flash(e.msg, "danger")
     return render_template("dashboard.html", history=history, page="dashboard", logged_in=True)
 
-@app.route('/leaderboard')
+
+@app.route('/leaderboard.json')
 @login_required
-def leaderboard():
+def api_leaderboard():
     leaders = r.table('leaderboard').order_by(r.desc('F1')).run(g.rdb_conn)
     email = session["email"]
     scores = [s["F1"] for s in leaders]
@@ -217,8 +218,17 @@ def leaderboard():
         rank = [l["email"] for l in leaders].index(email) + 1
     except ValueError:
         rank = 0
-    return render_template("leaderboard.html", leaders=leaders, email=email,
-                           rank=rank, scores=scores, page="leaderboard", logged_in=True)
+    return jsonify({
+        "leaders": leaders,
+        "rank": rank,
+        "email": email,
+        "scores": scores
+    })
+
+@app.route('/leaderboard')
+@login_required
+def leaderboard():
+    return render_template("leaderboard.html", page="leaderboard", logged_in=True)
 
 @app.route('/submission/<string:sub_id>')
 @login_required
