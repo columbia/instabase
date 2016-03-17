@@ -82,7 +82,10 @@ function startTracking() {
             console.info("connected");
         }
         if (msg.type === "UPDATE") {
-            $('#tracker-msg').slideDown(300);
+            $.get("/leaderboard.json", function(data) {
+
+            });
+            //$('#tracker-msg').slideDown(300);
         }
     }
 }
