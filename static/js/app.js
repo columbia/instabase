@@ -1,5 +1,5 @@
-var WS_SCHEME = "ws://";
-var WS_URL = WS_SCHEME + location.host + "/receive";
+var WS_URL = "ws://" + location.host + "/receive";
+var alert = document.getElementById("tracker-msg");
 
 // plot charts
 function plotCharts(scores) {
@@ -50,47 +50,64 @@ function plotCharts(scores) {
     var myhistochart = new Chart(ctx2).Bar(histodata);
 }
 
-function render() {
-    $.get('/leaderboard.json', function(data) {
-        // plot the charts
-        plotCharts(data.scores);
+var app = new Vue({
+    el: "#app",
 
-        // render the table
-        new Vue({
-            el: '#app',
-            data: {
-                rank: data.rank,
-                email: data.email,
-                leaders: data.leaders
+    data: {
+        rank: 0,
+        email: null,
+        leaders: []
+    },
+
+    created: function() {
+        this.startTracking();
+        this.fetchData();
+    },
+
+    methods: {
+        showMsg: function() {
+            alert.style.display = "block";
+            setTimeout(function() {
+                alert.style.display = "none";
+            }, 3*1000);
+        },
+        fetchData: function() {
+            console.info("fetching data");
+            var xhr = new XMLHttpRequest();
+            var self = this;
+            xhr.open("GET", "/leaderboard.json");
+            xhr.onload = function() {
+                var resp = JSON.parse(xhr.responseText);
+                self.rank = resp.rank;
+                self.email = resp.email;
+                self.leaders = resp.leaders;
+                plotCharts(resp.scores);
             }
-        })
-    });
-}
+            xhr.send();
+        },
+        
+        startTracking: function() {
+            var self = this;
 
-function startTracking() {
-    // initialize a websocket connection 
-    this.inbox = new ReconnectingWebSocket(WS_URL);
+            this.inbox = new ReconnectingWebSocket(WS_URL);
 
-    this.inbox.onclose = function() {
-        console.log("inbox closed");
-        this.inbox = new WebSocket(inbox.url);
+            this.inbox.onclose = function() {
+                console.log("inbox closed");
+                this.inbox = new WebSocket(this.inbox.url);
+            };
+
+            this.inbox.onmessage = function(message) {
+                var msg = JSON.parse(message.data);
+                if (msg.type === "INFO") {
+                    console.info("connected");
+                }
+                if (msg.type === "UPDATE") {
+                    console.log("updating the table");
+                    self.fetchData();
+                    self.showMsg();
+                }
+            };
+        }
     }
 
-    this.inbox.onmessage = function(message) {
-        var msg = JSON.parse(message.data);
-        if (msg.type === "INFO") {
-            console.info("connected");
-        }
-        if (msg.type === "UPDATE") {
-            $.get("/leaderboard.json", function(data) {
-
-            });
-            //$('#tracker-msg').slideDown(300);
-        }
-    }
-}
-
-// getting it running
-startTracking();
-
-render();
+});
