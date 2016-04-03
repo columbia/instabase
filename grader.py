@@ -45,7 +45,6 @@ def grader_text(submission, validator):
     if len(rows) == 0:
         raise InputFormatError('Cannot make empty submission.')
 
-
     headers = rows[0].split(',')
 
     if len(headers) != 2:
@@ -55,13 +54,19 @@ def grader_text(submission, validator):
     if len(rows[1:]) == 0:
         raise InputFormatError('Empty Submission.')
 
+    # keeping a separate set, cause this way grade reduces if there are duplicate entries.
+    unique_entries = set()
+
     for row in rows[1:]:
         entry = row.split(',')
         locu_id = str(entry[0]).strip()
         foursquare_id = str(entry[1]).strip()
         total_predictions += 1
-        if locu_id in validator:
-            correct_predictions += 1 if validator[locu_id] == foursquare_id else 0
+        
+        if locu_id not in unique_entries:
+            unique_entries.add(locu_id)
+            if locu_id in validator:
+                correct_predictions += 1 if validator[locu_id] == foursquare_id else 0
 
     precision = correct_predictions / total_predictions * 100
     recall = correct_predictions / len(validator) * 100
